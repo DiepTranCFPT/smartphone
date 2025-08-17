@@ -15,14 +15,15 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Production stage
-FROM openjdk:17-jre-slim
+# Production stage - Use Eclipse Temurin JRE (more stable)
+FROM eclipse-temurin:17-jre-alpine
 
 # Install curl for health checks
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # Create non-root user
-RUN groupadd -r spring && useradd -r -g spring spring
+RUN addgroup -g 1001 -S spring && \
+    adduser -S spring -u 1001 -G spring
 
 # Set working directory
 WORKDIR /app

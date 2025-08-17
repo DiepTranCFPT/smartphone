@@ -1,16 +1,40 @@
 {
   "version": 2,
+  "name": "diepxdemo",
   "builds": [
     {
       "src": "Dockerfile",
-      "use": "@vercel/static-build"
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "target"
+      }
     }
   ],
   "routes": [
     {
+      "src": "/actuator/health",
+      "dest": "/actuator/health"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/customers/(.*)",
+      "dest": "/customers/$1"
+    },
+    {
+      "src": "/purchases/(.*)",
+      "dest": "/purchases/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/"
     }
-  ]
+  ],
+  "env": {
+    "SPRING_PROFILES_ACTIVE": "production",
+    "PORT": "8081"
+  }
 }
 

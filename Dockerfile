@@ -1,30 +1,50 @@
-# Use OpenJDK 17 as base image
-FROM openjdk:17-jdk-slim
+# Multi-stage build for optimization
+# Use Maven image for building
+FROM maven:3.9.4-openjdk-17-slim AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY mvnw .
-COPY mvnw.cmd .
+# Copy pom.xml and download dependencies first (for better caching)
 COPY pom.xml .
-COPY .mvn .mvn
-
-# Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Expose port
-EXPOSE 8081
+# Production stage
+FROM openjdk:17-jre-slim
 
-# Set environment variables for production
-ENV SPRING_PROFILES_ACTIVE=production
-ENV SERVER_PORT=8081
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r spring && useradd -r -g spring spring
+
+# Set working directory
+WORKDIR /app
+
+# Copy the jar file from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Change ownership to spring user
+RUN chown spring:spring app.jar
+
+# Switch to non-root user
+USER spring
+
+# Expose port (Render will use the PORT environment variable)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:$PORT/actuator/health || exit 1
+
+# Set JVM options for production
+ENV JAVA_OPTS="-Xmx512m -Xms256m -Dspring.profiles.active=production"
 
 # Run the application
-CMD ["java", "-jar", "target/diepxdemo-0.0.1-SNAPSHOT.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -Dserver.port=$PORT -jar app.jar"]

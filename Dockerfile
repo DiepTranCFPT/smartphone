@@ -1,6 +1,6 @@
 # Multi-stage build for optimization
 # Use Maven image for building
-FROM maven:3.9.4-openjdk-17-slim AS builder
+FROM maven:3.9-openjdk-17-slim AS builder
 
 # Set working directory
 WORKDIR /app

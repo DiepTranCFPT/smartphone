@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Khách Hàng - Cửa Hàng Điện Thoại</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4285f4;
+            font-weight: 500;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-menu {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .nav-btn.active {
+            background: #34a853;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-select, .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .customers-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .customers-table th,
+        .customers-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .customers-table th {
+            background: #f8f9fa;
+            font-weight: 500;
+            color: #666;
+            position: sticky;
+            top: 0;
+        }
+
+        .customers-table tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .customer-row {
+            transition: all 0.2s ease;
+        }
+
+        .customer-row:hover {
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state .material-icons {
+            font-size: 64px;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .date-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .order-count {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .filter-form {
+                flex-direction: column;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .customers-table {
+                font-size: 14px;
+            }
+
+            .customers-table th,
+            .customers-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="material-icons" style="font-size: 2.5rem; vertical-align: middle;">people</i> Quản Lý Khách Hàng</h1>
+            <p>Theo dõi và quản lý thông tin khách hàng</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-menu">
+            <div class="nav-buttons">
+                <a href="/" class="nav-btn">
+                    <i class="material-icons">home</i>
+                    Trang Chủ
+                </a>
+                <a href="/customers" class="nav-btn active">
+                    <i class="material-icons">people</i>
+                    Quản Lý Khách Hàng
+                </a>
+                <a href="/purchases" class="nav-btn">
+                    <i class="material-icons">shopping_cart</i>
+                    Quản Lý Đơn Hàng
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h2 class="section-title">
+                <i class="material-icons">filter_list</i>
+                Lọc Theo Thời Gian
+            </h2>
+            <form th:action="@{/customers/filter}" method="get" class="filter-form">
+                <div class="form-group">
+                    <label class="form-label">Loại lọc</label>
+                    <select name="filterType" class="form-select" onchange="toggleDateInputs(this.value)" th:value="${filterType}">
+                        <option value="all" th:selected="${filterType == 'all'}">Tất cả</option>
+                        <option value="date" th:selected="${filterType == 'date'}">Theo ngày</option>
+                        <option value="month" th:selected="${filterType == 'month'}">Theo tháng</option>
+                        <option value="year" th:selected="${filterType == 'year'}">Theo năm</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="dateGroup" style="display: none;">
+                    <label class="form-label">Chọn ngày</label>
+                    <input type="date" name="date" class="form-input" th:value="${selectedDate}">
+                </div>
+
+                <div class="form-group" id="monthGroup" style="display: none;">
+                    <label class="form-label">Chọn tháng</label>
+                    <input type="month" name="month" class="form-input" th:value="${selectedMonth != null ? selectedYear + '-' + (selectedMonth < 10 ? '0' + selectedMonth : selectedMonth) : ''}">
+                </div>
+
+                <div class="form-group" id="yearGroup" style="display: none;">
+                    <label class="form-label">Chọn năm</label>
+                    <input type="number" name="year" class="form-input" min="2020" max="2030" th:value="${selectedYear}">
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="material-icons">search</i>
+                    Lọc
+                </button>
+            </form>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stats-card">
+                <div class="stats-number" th:text="${totalCustomers}">0</div>
+                <div class="stats-label">Tổng Khách Hàng</div>
+            </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div class="customers-section">
+            <h2 class="section-title">
+                <i class="material-icons">list</i>
+                Danh Sách Khách Hàng
+            </h2>
+
+            <div th:if="${customers != null and !customers.empty}">
+                <table class="customers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ngày tạo</th>
+                            <th>Tên khách hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Ngày sinh</th>
+                            <th>Số đơn</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="customer : ${customers}" class="customer-row"
+                            th:onclick="'window.location.href=\'/customer-details/' + ${customer.id} + '\''">
+                            <td th:text="${customer.id}"></td>
+                            <td>
+                                <span class="date-badge" th:text="${#temporals.format(customer.createdDate, 'dd/MM/yyyy')}"></span>
+                            </td>
+                            <td>
+                                <strong th:text="${customer.name}"></strong>
+                            </td>
+                            <td th:text="${customer.phone}"></td>
+                            <td th:text="${customer.dob} ?: 'Chưa cập nhật'"></td>
+                            <td>
+                                <span class="order-count" th:text="${customer.orderCount} + ' đơn'"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${customers == null or customers.empty}" class="empty-state">
+                <i class="material-icons">people_outline</i>
+                <h3>Không có dữ liệu</h3>
+                <p>Không tìm thấy khách hàng nào trong hệ thống</p>
+                <a href="/" class="btn-primary" style="margin-top: 20px;">
+                    <i class="material-icons">add</i>
+                    Thêm khách hàng mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDateInputs(filterType) {
+            const dateGroup = document.getElementById('dateGroup');
+            const monthGroup = document.getElementById('monthGroup');
+            const yearGroup = document.getElementById('yearGroup');
+
+            // Hide all first
+            dateGroup.style.display = 'none';
+            monthGroup.style.display = 'none';
+            yearGroup.style.display = 'none';
+
+            // Show based on selection
+            switch(filterType) {
+                case 'date':
+                    dateGroup.style.display = 'block';
+                    break;
+                case 'month':
+                    monthGroup.style.display = 'block';
+                    break;
+                case 'year':
+                    yearGroup.style.display = 'block';
+                    break;
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            const filterType = document.querySelector('select[name="filterType"]').value;
+            toggleDateInputs(filterType);
+        };
+    </script>
+</body>
+</html>

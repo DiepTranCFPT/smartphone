@@ -194,10 +194,7 @@
             <p th:text="${isEdit} ? 'Cập nhật thông tin khách hàng' : 'Nhập thông tin khách hàng mới'">Nhập thông tin khách hàng mới</p>
         </div>
 
-        <form th:action="${isEdit} ? @{'/customers/update/' + customer.id} : @{/customers}" method="post" th:object="${customer}">
-            <input type="hidden" th:field="*{id}" th:if="${isEdit}">
-            <input type="hidden" th:field="*{createdDate}" th:if="${isEdit}">
-
+        <form th:action="${isEdit} ? @{/customers/update/{id}(id=${customer.id})} : @{/customers}" method="post" th:object="${customer}">            <input type="hidden" th:field="*{createdDate}" th:if="${isEdit}">
             <div class="form-card">
                 <div class="card-title">
                     <i class="material-icons">info</i>

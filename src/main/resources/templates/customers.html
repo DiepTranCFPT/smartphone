@@ -361,7 +361,7 @@
                 Danh Sách Khách Hàng
             </h2>
 
-            <div th:if="${customers != null and !customers.empty}">
+            <div th:if="${customers != null and !customers.isEmpty()}">
                 <table class="customers-table">
                     <thead>
                         <tr>
@@ -393,7 +393,7 @@
                 </table>
             </div>
 
-            <div th:if="${customers == null or customers.empty}" class="empty-state">
+            <div th:if="${customers == null or customers.isEmpty()}" class="empty-state">
                 <i class="material-icons">people_outline</i>
                 <h3>Không có dữ liệu</h3>
                 <p>Không tìm thấy khách hàng nào trong hệ thống</p>

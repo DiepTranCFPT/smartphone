@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,7 +25,29 @@ public class CustomerService {
     }
 
     public Customer save(Customer customer) {
-        return customerRepository.save(customer);
+        if(customer.getId() == null){
+            Customer newCustomer = Customer.builder()
+                    .createdDate(LocalDateTime.now())
+                    .name(customer.getName())
+                    .phone(customer.getPhone())
+                    .dob(customer.getDob())
+                    .build();
+            return customerRepository.save(newCustomer);
+        }
+        Customer customer1 = customerRepository.findById(customer.getId()).orElseThrow(()-> new RuntimeException("Customer not found"));
+        if(!Objects.equals(customer1.getName(), customer.getName())){
+            customer1.setName(customer.getName());
+        }
+        if (!Objects.equals(customer1.getDob(), customer.getDob())){
+            customer1.setDob(customer.getDob());
+        }
+        customer1.setCreatedDate(LocalDateTime.now());
+        if (!Objects.equals(customer1.getPhone(), customer.getPhone())){
+            customer1.setPhone(customer.getPhone());
+        }
+
+        return customerRepository.save(customer1);
+
     }
 
     public Optional<Customer> findById(Long id) {

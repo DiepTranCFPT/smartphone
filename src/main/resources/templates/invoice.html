@@ -321,11 +321,11 @@
         <div class="invoice-header">
             <div class="store-name">
                 <i class="material-icons" style="font-size: 3rem;">smartphone</i>
-                CỬA HÀNG ĐIỆN THOẠI
+                Smartphone ZinHaus
             </div>
             <div class="store-info">
-                Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM<br>
-                Điện thoại: 0123 456 789 | Email: contact@smartphone.vn
+                Địa chỉ: 225 Phạm Văn Đồng, Phường 1, Quận gò vấp,TP HCM<br>
+                Điện thoại: 0359 590 954
             </div>
         </div>
 
@@ -364,6 +364,10 @@
                         <div class="info-item">
                             <span class="info-label">Ngày in:</span>
                             <span class="info-value" th:text="${#temporals.format(currentDate, 'dd/MM/yyyy HH:mm')}"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ngày Hết BH : </span>
+                            <span class="info-value" th:text="${#temporals.format(purchase.date.plusMonths(purchase.warrantyMonths), 'dd/MM/yyyy HH:mm')}"></span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Nhân viên bán:</span>
@@ -407,13 +411,13 @@
                     Bảo hành từ ngày: <span th:text="${#temporals.format(purchase.date, 'dd/MM/yyyy')}"></span>
                 </div>
 
-                <!-- Note -->
-                <div th:if="${purchase.note != null and !purchase.note.isEmpty()}" class="note-section">
-                    <strong><i class="material-icons" style="vertical-align: middle;">note</i> Ghi Chú:</strong><br>
-                    <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; line-height: 1.6; word-wrap: break-word;">
-                        <span th:text="${purchase.note}"></span>
-                    </div>
-                </div>
+<!--                &lt;!&ndash; Note &ndash;&gt;-->
+<!--                <div th:if="${purchase.note != null and !purchase.note.isEmpty()}" class="note-section">-->
+<!--                    <strong><i class="material-icons" style="vertical-align: middle;">note</i> Ghi Chú:</strong><br>-->
+<!--                    <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; line-height: 1.6; word-wrap: break-word;">-->
+<!--                        <span th:text="${purchase.note}"></span>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
 
             <!-- Multiple Invoices -->
@@ -493,7 +497,7 @@
 
             <div class="footer">
                 <p><strong>Cảm ơn quý khách đã mua hàng!</strong></p>
-                <p>Mọi thắc mắc xin liên hệ: 0123 456 789</p>
+                <p>Mọi thắc mắc xin liên hệ: 0359 590 954</p>
             </div>
         </div>
     </div>

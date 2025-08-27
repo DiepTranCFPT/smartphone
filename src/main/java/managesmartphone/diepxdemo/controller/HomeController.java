@@ -1,5 +1,6 @@
 package managesmartphone.diepxdemo.controller;
 
+import jakarta.servlet.http.HttpSession;
 import managesmartphone.diepxdemo.entity.Customer;
 import managesmartphone.diepxdemo.entity.Purchase;
 import managesmartphone.diepxdemo.service.CustomerService;

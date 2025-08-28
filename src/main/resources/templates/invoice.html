@@ -305,6 +305,14 @@
     </style>
 </head>
 <body>
+<header>
+    <!--
+      - th:src="@{/images/logo.png}" is the correct Thymeleaf syntax to link to a static asset.
+      - The path starts from the 'static' directory.
+      - The 'alt' attribute is important for accessibility.
+    -->
+    <img th:src="@{/images/logo1.png}" alt="Application Logo" style="width: 150px; height: auto;"/>
+</header>
     <div class="print-buttons">
         <button onclick="window.print()" class="btn btn-primary">
             <i class="material-icons">print</i>
@@ -319,8 +327,8 @@
     <div class="invoice-container">
         <!-- Header -->
         <div class="invoice-header">
+            <img th:src="@{/images/logo1.png}" alt="Application Logo" style="width: 100px; height: auto;"/>
             <div class="store-name">
-                <i class="material-icons" style="font-size: 3rem;">smartphone</i>
                 Smartphone ZinHaus
             </div>
             <div class="store-info">

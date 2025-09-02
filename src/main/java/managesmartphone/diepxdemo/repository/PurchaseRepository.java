@@ -24,15 +24,15 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT p FROM Purchase p WHERE YEAR(p.date) = :year ORDER BY p.date DESC")
     List<Purchase> findByYear(@Param("year") int year);
 
-    @Query("SELECT SUM(p.unitPrice * p.qty) FROM Purchase p WHERE DATE(p.date) = DATE(:date)")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE DATE(p.date) = DATE(:date)")
     BigDecimal getTotalAmountByDate(@Param("date") LocalDateTime date);
 
-    @Query("SELECT SUM(p.unitPrice * p.qty) FROM Purchase p WHERE MONTH(p.date) = :month AND YEAR(p.date) = :year")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE MONTH(p.date) = :month AND YEAR(p.date) = :year")
     BigDecimal getTotalAmountByMonth(@Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT SUM(p.unitPrice * p.qty) FROM Purchase p WHERE YEAR(p.date) = :year")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE YEAR(p.date) = :year")
     BigDecimal getTotalAmountByYear(@Param("year") int year);
 
-    @Query("SELECT SUM(p.unitPrice * p.qty) FROM Purchase p")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi")
     BigDecimal getTotalAmount();
 }

@@ -609,21 +609,31 @@
                     </thead>
                     <tbody>
                         <tr th:each="purchase : ${recentPurchases}">
-                            <td th:text="${purchase.itemName}"></td>
-                            <td th:text="${purchase.qty}"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                            <td>
+                                <span th:each="item, iterStat : ${purchase.items}" th:if="${iterStat.index == 0}" th:text="${item.itemName}">-</span>
+                                <span th:if="${purchase.items == null or purchase.items.empty}" style="color:#999;">-</span>
+                            </td>
+                            <td>
+                                <span th:each="item, iterStat : ${purchase.items}" th:if="${iterStat.index == 0}" th:text="${item.qty}">0</span>
+                                <span th:if="${purchase.items == null or purchase.items.empty}" style="color:#999;">0</span>
+                            </td>
+                            <td class="money">
+                                <span th:each="item, iterStat : ${purchase.items}" th:if="${iterStat.index == 0}"
+                                      th:text="${#numbers.formatInteger(item.unitPrice, 1, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                                <span th:if="${purchase.items == null or purchase.items.empty}" style="color:#999;">0 VNĐ</span>
+                            </td>
+                            <td class="money" th:text="${#numbers.formatInteger(purchase.totalAmount, 1, 'POINT')} + ' VNĐ'"></td>
                             <td th:text="${#temporals.format(purchase.date, 'dd/MM/yyyy HH:mm')}"></td>
                             <td>
-                                <a th:href="@{/purchases/edit/{id}(id=${purchase.id})}" class="btn-primary btn-warning" style="padding: 8px 16px; font-size: 14px;">
-                                    <i class="material-icons" style="font-size: 18px;">edit</i>
-                                    Sửa
-                                </a>
-                                <a th:href="@{/purchases/print/{id}(id=${purchase.id})}" class="btn-primary btn-success" style="padding: 8px 16px; font-size: 14px;" target="_blank">
-                                    <i class="material-icons" style="font-size: 18px;">print</i>
-                                    In
-                                </a>
-                                <form th:action="@{/purchases/delete/{id}(id=${purchase.id})}" method="post" style="display: inline;"
+                                 <a th:href="@{/purchases/edit/{id}(id=${purchase.id})}" class="btn-primary btn-warning" style="padding: 8px 16px; font-size: 14px;">
+                                     <i class="material-icons" style="font-size: 18px;">edit</i>
+                                     Sửa
+                                 </a>
+                                 <a th:href="@{/purchases/print/{id}(id=${purchase.id})}" class="btn-primary btn-success" style="padding: 8px 16px; font-size: 14px;" target="_blank">
+                                     <i class="material-icons" style="font-size: 18px;">print</i>
+                                     In
+                                 </a>
+                                 <form th:action="@{/purchases/delete/{id}(id=${purchase.id})}" method="post" style="display: inline;"
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')">
                                     <button type="submit" class="btn-primary btn-danger" style="padding: 8px 16px; font-size: 14px;">
                                         <i class="material-icons" style="font-size: 18px;">delete</i>

@@ -2,6 +2,7 @@ package managesmartphone.diepxdemo.controller;
 
 import managesmartphone.diepxdemo.entity.Customer;
 import managesmartphone.diepxdemo.entity.Purchase;
+import managesmartphone.diepxdemo.entity.PurchaseItem;
 import managesmartphone.diepxdemo.service.CustomerService;
 import managesmartphone.diepxdemo.service.PurchaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +42,7 @@ public class PurchaseController {
     @GetMapping("/filter")
     public String filterPurchases(@RequestParam String filterType,
                                 @RequestParam(required = false) String date,
-                                @RequestParam(required = false) Integer month,
+                                @RequestParam(required = false) String month,
                                 @RequestParam(required = false) Integer year,
                                 Model model) {
 
@@ -59,9 +61,11 @@ public class PurchaseController {
                 }
                 break;
             case "month":
-                if (month != null && year != null) {
-                    purchases = purchaseService.findByMonth(month, year);
-                    totalAmount = purchaseService.getTotalAmountByMonth(month, year);
+                if (month != null && !month.isEmpty() && year != null) {
+                    // Parse month from format "YYYY-MM"
+                    int monthValue = Integer.parseInt(month.split("-")[1]);
+                    purchases = purchaseService.findByMonth(monthValue, year);
+                    totalAmount = purchaseService.getTotalAmountByMonth(monthValue, year);
                 } else {
                     purchases = purchaseService.findAll();
                     totalAmount = purchaseService.getTotalAmount();
@@ -86,7 +90,7 @@ public class PurchaseController {
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("filterType", filterType);
         model.addAttribute("selectedDate", date);
-        model.addAttribute("selectedMonth", month);
+        model.addAttribute("selectedMonth", month); // Now passing the original month string back
         model.addAttribute("selectedYear", year);
 
         return "purchases";
@@ -95,6 +99,11 @@ public class PurchaseController {
     // API endpoint để tạo đơn hàng mới - hiển thị form tìm kiếm khách hàng
     @GetMapping("/create-new")
     public String createNewPurchase(Model model) {
+        Purchase purchase = new Purchase();
+        purchase.setItems(new ArrayList<>());
+        purchase.getItems().add(new PurchaseItem()); // Add initial empty item
+
+        model.addAttribute("purchase", purchase);
         model.addAttribute("customer", new Customer());
         model.addAttribute("showSearchForm", true);
         return "purchase-create";
@@ -156,18 +165,21 @@ public class PurchaseController {
     }
 
     @GetMapping("/new/{customerId}")
-    public String newPurchase(@PathVariable Long customerId, Model model) {
+    public String createPurchaseForCustomer(@PathVariable Long customerId, Model model) {
         Optional<Customer> customerOpt = customerService.findById(customerId);
-        if (customerOpt.isPresent()) {
-            Purchase purchase = new Purchase();
-            purchase.setCustomer(customerOpt.get());
-
-            model.addAttribute("purchase", purchase);
-            model.addAttribute("customer", customerOpt.get());
-            model.addAttribute("isEdit", false);
-            return "purchase-form";
+        if (!customerOpt.isPresent()) {
+            return "redirect:/purchases/create-new";
         }
-        return "redirect:/purchases";
+
+        Purchase purchase = new Purchase();
+        purchase.setCustomer(customerOpt.get());
+        purchase.setItems(new ArrayList<>());
+        purchase.getItems().add(new PurchaseItem()); // Add initial empty item
+        purchase.setDate(LocalDateTime.now());
+
+        model.addAttribute("purchase", purchase);
+        model.addAttribute("customer", customerOpt.get());
+        return "purchase-form";
     }
 
     @GetMapping("/edit/{id}")
@@ -175,6 +187,10 @@ public class PurchaseController {
         Optional<Purchase> purchaseOpt = purchaseService.findById(id);
         if (purchaseOpt.isPresent()) {
             Purchase purchase = purchaseOpt.get();
+            // ensure at least one item exists for the form
+            if (purchase.getItems() == null || purchase.getItems().isEmpty()) {
+                purchase.addItem(new PurchaseItem());
+            }
             model.addAttribute("purchase", purchase);
             model.addAttribute("customer", purchase.getCustomer());
             model.addAttribute("isEdit", true);
@@ -189,6 +205,23 @@ public class PurchaseController {
             if (purchase.getId() == null) {
                 purchase.setDate(LocalDateTime.now());
             }
+
+            // Remove empty items and set back-reference
+            if (purchase.getItems() != null) {
+                Iterator<PurchaseItem> it = purchase.getItems().iterator();
+                while (it.hasNext()) {
+                    PurchaseItem item = it.next();
+                    boolean emptyName = (item.getItemName() == null || item.getItemName().trim().isEmpty());
+                    boolean invalidQty = (item.getQty() == null || item.getQty() <= 0);
+                    boolean missingPrice = (item.getUnitPrice() == null);
+                    if (emptyName || invalidQty || missingPrice) {
+                        it.remove();
+                    } else {
+                        item.setPurchase(purchase);
+                    }
+                }
+            }
+
             purchaseService.save(purchase);
             redirectAttributes.addFlashAttribute("success", "Đơn hàng đã được lưu thành công!");
             return "redirect:/?customerId=" + purchase.getCustomer().getId();

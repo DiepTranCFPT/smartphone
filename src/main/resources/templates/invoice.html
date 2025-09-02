@@ -374,10 +374,6 @@
                             <span class="info-value" th:text="${#temporals.format(currentDate, 'dd/MM/yyyy HH:mm')}"></span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Ngày Hết BH : </span>
-                            <span class="info-value" th:text="${#temporals.format(purchase.date.plusMonths(purchase.warrantyMonths), 'dd/MM/yyyy HH:mm')}"></span>
-                        </div>
-                        <div class="info-item">
                             <span class="info-label">Nhân viên bán:</span>
                             <span class="info-value">zinHaus</span>
                         </div>
@@ -392,120 +388,85 @@
                             <th>Số lượng</th>
                             <th>Đơn giá</th>
                             <th>Thành tiền</th>
+                            <th>Hết BH</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td th:text="${purchase.itemName}"></td>
-                            <td th:text="${purchase.qty}"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <tr th:each="item, stat : ${purchase.items}">
+                            <td th:text="${stat.index + 1}"></td>
+                            <td th:text="${item.itemName}"></td>
+                            <td th:text="${item.qty}"></td>
+                            <td th:text="${#numbers.formatInteger(item.unitPrice, 1, 'POINT')} + ' VNĐ'"></td>
+                            <td th:text="${#numbers.formatInteger(item.totalAmount, 1, 'POINT')} + ' VNĐ'"></td>
+                            <td th:text="${item.warrantyMonths != null ? #temporals.format(purchase.date.plusMonths(item.warrantyMonths), 'dd/MM/yyyy') : 'Không'}"></td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="total-section">
-                    <div class="total-row grand-total">
-                        <span>TỔNG CỘNG:</span>
-                        <span class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                    <div class="total-row">
+                        <span>Tổng tiền hàng:</span>
+                        <span class="money" th:text="${#numbers.formatInteger(purchase.totalAmount, 1, 'POINT')} + ' VNĐ'"></span>
                     </div>
                 </div>
 
-                <!-- Warranty Info -->
-                <div th:if="${purchase.warrantyMonths != null}" class="warranty-info">
-                    <strong><i class="material-icons" style="vertical-align: middle;">verified</i> Thông Tin Bảo Hành:</strong><br>
-                    Thời gian bảo hành: <span th:text="${purchase.warrantyMonths}"></span> tháng<br>
-                    Bảo hành từ ngày: <span th:text="${#temporals.format(purchase.date, 'dd/MM/yyyy')}"></span>
+                <div class="warranty-info">
+                    <strong>Lưu ý bảo hành:</strong>
+                    <div>Bảo hành tính riêng cho từng sản phẩm theo thông tin trên hóa đơn.</div>
+                    <div>Bảo quản cẩn thận phiếu mua hàng để được hỗ trợ bảo hành.</div>
                 </div>
 
-<!--                &lt;!&ndash; Note &ndash;&gt;-->
-<!--                <div th:if="${purchase.note != null and !purchase.note.isEmpty()}" class="note-section">-->
-<!--                    <strong><i class="material-icons" style="vertical-align: middle;">note</i> Ghi Chú:</strong><br>-->
-<!--                    <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; line-height: 1.6; word-wrap: break-word;">-->
-<!--                        <span th:text="${purchase.note}"></span>-->
-<!--                    </div>-->
-<!--                </div>-->
+                <div th:if="${purchase.note}">
+                    <div class="note-section">
+                        <strong>Ghi chú:</strong>
+                        <div th:text="${purchase.note}"></div>
+                    </div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="signature-box">
+                        <div class="signature-title">Người bán</div>
+                        <div class="signature-line"></div>
+                    </div>
+
+                    <div class="signature-box">
+                        <div class="signature-title">Khách hàng</div>
+                        <div class="signature-line"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Multiple Invoices -->
             <div th:if="${isMultiple}" class="multiple-invoice">
-                <div class="invoice-info">
-                    <div class="info-section">
-                        <h3><i class="material-icons" style="vertical-align: middle;">receipt</i> Thông Tin In Hàng Loạt</h3>
-                        <div class="info-item">
-                            <span class="info-label">Số lượng hóa đơn:</span>
-                            <span class="info-value" th:text="${#lists.size(purchases)}"></span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Ngày in:</span>
-                            <span class="info-value" th:text="${#temporals.format(currentDate, 'dd/MM/yyyy HH:mm')}"></span>
-                        </div>
+                <div th:each="p, idx : ${purchases}" class="invoice-item">
+                    <h3>Hóa đơn <span th:text="${idx + 1}"></span></h3>
+                    <!-- simplified rendering for multiple invoices -->
+                    <div>Khách hàng: <span th:text="${p.customer.name}"></span> - <span th:text="${p.customer.phone}"></span></div>
+                    <table class="invoice-table">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Sản phẩm</th>
+                            <th>SL</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="it, s : ${p.items}">
+                            <td th:text="${s.index + 1}"></td>
+                            <td th:text="${it.itemName}"></td>
+                            <td th:text="${it.qty}"></td>
+                            <td th:text="${it.unitPrice} + ' VNĐ'"></td>
+                            <td th:text="${it.totalAmount} + ' VNĐ'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="total-row">
+                        <span>Tổng:</span>
+                        <span class="money" th:text="${p.totalAmount} + ' VNĐ'"></span>
                     </div>
                 </div>
-
-                <div th:each="purchase, iterStat : ${purchases}" class="invoice-item">
-                    <h4 style="color: #4285f4; margin-bottom: 20px;">
-                        Hóa đơn #<span th:text="${iterStat.count}"></span> -
-                        <span th:text="'HD' + ${#strings.toString(purchase.id).length() < 6 ? #strings.repeat('0', 6 - #strings.toString(purchase.id).length()) + purchase.id : purchase.id}"></span>
-                    </h4>
-
-                    <div class="invoice-info">
-                        <div class="info-section">
-                            <h3>Khách Hàng</h3>
-                            <div class="info-item">
-                                <span class="info-label">Tên:</span>
-                                <span class="info-value" th:text="${purchase.customer.name}"></span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">SĐT:</span>
-                                <span class="info-value" th:text="${purchase.customer.phone}"></span>
-                            </div>
-                        </div>
-
-                        <div class="info-section">
-                            <h3>Sản Phẩm</h3>
-                            <div class="info-item">
-                                <span class="info-label">Tên:</span>
-                                <span class="info-value" th:text="${purchase.itemName}"></span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Số lượng:</span>
-                                <span class="info-value" th:text="${purchase.qty}"></span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Thành tiền:</span>
-                                <span class="info-value money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="total-section">
-                    <div class="total-row grand-total">
-                        <span>TỔNG CỘNG TẤT CẢ:</span>
-                        <span class="money" th:text="${#numbers.formatDecimal(#aggregates.sum(purchases.![totalAmount]), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Signature Section -->
-            <div class="signature-section">
-                <div class="signature-box">
-                    <div class="signature-title">Người mua hàng</div>
-                    <div class="signature-line"></div>
-                    <div>(Ký và ghi rõ họ tên)</div>
-                </div>
-                <div class="signature-box">
-                    <div class="signature-title">Người bán hàng</div>
-                    <div class="signature-line"></div>
-                    <div>(Ký và ghi rõ họ tên)</div>
-                </div>
-            </div>
-
-            <div class="footer">
-                <p><strong>Cảm ơn quý khách đã mua hàng!</strong></p>
-                <p>Mọi thắc mắc xin liên hệ: 0359 590 954</p>
             </div>
         </div>
     </div>

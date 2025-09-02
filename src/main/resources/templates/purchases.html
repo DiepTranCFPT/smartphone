@@ -357,8 +357,8 @@
             </h2>
             <form th:action="@{/purchases/filter}" method="get" class="filter-form">
                 <div class="form-group">
-                    <label class="form-label">Loại lọc</label>
-                    <select name="filterType" class="form-select" onchange="toggleDateInputs(this.value)" th:value="${filterType}">
+                    <label for="filterType" class="form-label">Loại lọc</label>
+                    <select id="filterType" name="filterType" class="form-select" onchange="toggleDateInputs(this.value)" th:value="${filterType}">
                         <option value="all" th:selected="${filterType == 'all'}">Tất cả</option>
                         <option value="date" th:selected="${filterType == 'date'}">Theo ngày</option>
                         <option value="month" th:selected="${filterType == 'month'}">Theo tháng</option>
@@ -366,19 +366,26 @@
                     </select>
                 </div>
 
-                <div class="form-group" id="dateGroup" style="display: none;">
-                    <label class="form-label">Chọn ngày</label>
-                    <input type="date" name="date" class="form-input" th:value="${selectedDate}">
+                <div class="form-group" th:if="${filterType == 'month'}">
+                    <label>Chọn tháng</label>
+                    <input type="month" name="month" class="form-input" th:value="${selectedMonth}"
+                           th:attr="min='2020-01', max=${#temporals.format(#temporals.createNow(), 'yyyy-MM')}">
                 </div>
 
-                <div class="form-group" id="monthGroup" style="display: none;">
-                    <label class="form-label">Chọn tháng</label>
-                    <input type="month" name="month" class="form-input" th:value="${selectedMonth != null ? selectedYear + '-' + (selectedMonth < 10 ? '0' + selectedMonth : selectedMonth) : ''}">
+                <div class="form-group" th:if="${filterType == 'year'}">
+                    <label>Chọn năm</label>
+                    <select name="year" class="form-input">
+                        <option value="">-- Chọn năm --</option>
+                        <option th:each="y : ${#numbers.sequence(2020, #calendars.year(#calendars.createNow()))}"
+                                th:value="${y}" th:text="${y}"
+                                th:selected="${selectedYear != null and selectedYear == y}">2023</option>
+                    </select>
                 </div>
 
-                <div class="form-group" id="yearGroup" style="display: none;">
-                    <label class="form-label">Chọn năm</label>
-                    <input type="number" name="year" class="form-input" min="2020" max="2030" th:value="${selectedYear}">
+                <div class="form-group" th:if="${filterType == 'date'}">
+                    <label>Chọn ngày</label>
+                    <input type="date" name="date" class="form-input" th:value="${selectedDate}"
+                           th:attr="min='2020-01-01', max=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
                 </div>
 
                 <button type="submit" class="btn-primary">
@@ -391,7 +398,7 @@
         <!-- Stats Section -->
         <div class="stats-section">
             <div class="stats-card">
-                <div class="stats-number money" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                <div class="stats-number money" th:text="${#numbers.formatDecimal(totalAmount, 0, 0)} + ' VNĐ'">0 VNĐ</div>
                 <div class="stats-label">Tổng Doanh Thu</div>
             </div>
         </div>
@@ -409,7 +416,7 @@
                 </a>
             </div>
 
-            <div th:if="${purchases != null and !purchases.empty}">
+            <div th:if="${purchases != null and purchases.size() > 0}">
                 <table class="purchases-table">
                     <thead>
                         <tr>
@@ -433,41 +440,61 @@
                                 <div class="customer-name" th:text="${purchase.customer.name}"></div>
                                 <div style="font-size: 12px; color: #666;" th:text="${purchase.customer.phone}"></div>
                             </td>
-                            <td th:text="${purchase.itemName}"></td>
-                            <td th:text="${purchase.qty}"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                             <td>
-                                <span th:if="${purchase.warrantyMonths != null}" class="warranty-badge"
-                                      th:text="${purchase.warrantyMonths} + ' tháng'"></span>
-                                <span th:if="${purchase.warrantyMonths == null}" style="color: #999;">Không</span>
+                                <span th:each="item, iterStat : ${purchase.items}"
+                                      th:if="${iterStat.index == 0}"
+                                      th:text="${item.itemName}">-</span>
+                                <span th:if="${purchase.items == null or purchase.items.size() == 0}" style="color:#999;">-</span>
                             </td>
-                            <td th:text="${purchase.note} ?: '-'" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;"></td>
                             <td>
-                                <div class="action-buttons">
-                                    <a th:href="@{/purchases/edit/{id}(id=${purchase.id})}" class="btn-primary btn-warning btn-small">
-                                        <i class="material-icons" style="font-size: 16px;">edit</i>
-                                        Sửa
-                                    </a>
-                                    <a th:href="@{/purchases/print/{id}(id=${purchase.id})}" class="btn-primary btn-success btn-small" target="_blank">
-                                        <i class="material-icons" style="font-size: 16px;">print</i>
-                                        In
-                                    </a>
-                                    <form th:action="@{/purchases/delete/{id}(id=${purchase.id})}" method="post" style="display: inline;"
-                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')">
-                                        <button type="submit" class="btn-primary btn-danger btn-small">
-                                            <i class="material-icons" style="font-size: 16px;">delete</i>
-                                            Xóa
-                                        </button>
-                                    </form>
-                                </div>
+                                <span th:each="item, iterStat : ${purchase.items}"
+                                      th:if="${iterStat.index == 0}"
+                                      th:text="${item.qty}">0</span>
+                                <span th:if="${purchase.items == null or purchase.items.size() == 0}" style="color:#999;">0</span>
                             </td>
-                        </tr>
+                            <td class="money">
+                                <span th:each="item, iterStat : ${purchase.items}"
+                                      th:if="${iterStat.index == 0}"
+                                      th:text="${#numbers.formatDecimal(item.unitPrice, 0, 0)} + ' VNĐ'">0 VNĐ</span>
+                                <span th:if="${purchase.items == null or purchase.items.size() == 0}" style="color:#999;">0 VNĐ</span>
+                            </td>
+                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 0)} + ' VNĐ'"></td>
+                            <td>
+                                <span th:each="item, iterStat : ${purchase.items}"
+                                      th:if="${iterStat.index == 0} and ${item.warrantyMonths != null}"
+                                      class="warranty-badge"
+                                      th:text="${item.warrantyMonths} + ' tháng'">0 tháng</span>
+                                <span th:each="item, iterStat : ${purchase.items}"
+                                      th:if="${iterStat.index == 0} and ${item.warrantyMonths == null}"
+                                      style="color: #999;">Không</span>
+                                <span th:if="${purchase.items == null or purchase.items.size() == 0}" style="color: #999;">Không</span>
+                            </td>
+                             <td th:text="${purchase.note} ?: '-'" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;"></td>
+                             <td>
+                                 <div class="action-buttons">
+                                     <a th:href="@{/purchases/edit/{id}(id=${purchase.id})}" class="btn-primary btn-warning btn-small">
+                                         <i class="material-icons" style="font-size: 16px;">edit</i>
+                                         Sửa
+                                     </a>
+                                     <a th:href="@{/purchases/print/{id}(id=${purchase.id})}" class="btn-primary btn-success btn-small" target="_blank">
+                                         <i class="material-icons" style="font-size: 16px;">print</i>
+                                         In
+                                     </a>
+                                     <form th:action="@{/purchases/delete/{id}(id=${purchase.id})}" method="post" style="display: inline;"
+                                           onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')">
+                                         <button type="submit" class="btn-primary btn-danger btn-small">
+                                             <i class="material-icons" style="font-size: 16px;">delete</i>
+                                             Xóa
+                                         </button>
+                                     </form>
+                                 </div>
+                             </td>
+                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div th:if="${purchases == null or purchases.empty}" class="empty-state">
+            <div th:if="${purchases == null or purchases.size() == 0}" class="empty-state">
                 <i class="material-icons">shopping_cart</i>
                 <h3>Không có dữ liệu</h3>
                 <p>Không tìm thấy đơn hàng nào trong hệ thống</p>

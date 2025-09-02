@@ -369,28 +369,33 @@
 
     <script>
         function formatPrice(input) {
-            // Remove non-digit characters
-            let value = input.value.replace(/\D/g, '');
+            // Remove all non-digit characters except decimal comma
+            let value = input.value.replace(/[^\d,]/g, '');
 
-            // Format with dots as thousand separators
-            if (value) {
-                value = parseInt(value).toLocaleString('vi-VN');
-                input.value = value;
+            // Parse the number, treating comma as decimal separator
+            let numericValue = value.replace(/\./g, '').replace(',', '.');
+
+            // Parse as float
+            let number = parseFloat(numericValue);
+            if (!isNaN(number)) {
+                // Format for display with Vietnamese locale
+                input.value = number.toLocaleString('vi-VN');
+
+                // Create hidden input with the proper decimal format
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = input.name;
+                // Format with exactly 2 decimal places using period as decimal separator
+                hiddenInput.value = number.toFixed(2);
+
+                // Remove any existing hidden input
+                const existingHidden = input.parentNode.querySelector('input[type="hidden"]');
+                if (existingHidden) {
+                    existingHidden.remove();
+                }
+
+                input.parentNode.appendChild(hiddenInput);
             }
-
-            // Update hidden input with raw number
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = input.name;
-            hiddenInput.value = value.replace(/\./g, '');
-
-            // Remove any existing hidden input
-            const existingHidden = input.parentNode.querySelector('input[type="hidden"]');
-            if (existingHidden) {
-                existingHidden.remove();
-            }
-
-            input.parentNode.appendChild(hiddenInput);
         }
 
         function addItem() {
@@ -477,7 +482,11 @@
             // Format any existing price inputs
             document.querySelectorAll('.price-input').forEach(input => {
                 if (input.value) {
-                    formatPrice(input);
+                    // Convert from raw number to formatted display
+                    const number = parseFloat(input.value);
+                    if (!isNaN(number)) {
+                        input.value = number.toLocaleString('vi-VN');
+                    }
                 }
             });
         });

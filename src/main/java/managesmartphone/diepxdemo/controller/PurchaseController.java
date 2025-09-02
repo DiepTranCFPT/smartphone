@@ -29,69 +29,66 @@ public class PurchaseController {
     private CustomerService customerService;
 
     @GetMapping
-    public String purchases(Model model) {
-        List<Purchase> purchases = purchaseService.findAll();
-        BigDecimal totalAmount = purchaseService.getTotalAmount();
-
-        model.addAttribute("purchases", purchases);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("filterType", "all");
-        return "purchases";
-    }
-
-    @GetMapping("/filter")
-    public String filterPurchases(@RequestParam String filterType,
-                                @RequestParam(required = false) String date,
-                                @RequestParam(required = false) String month,
-                                @RequestParam(required = false) Integer year,
-                                Model model) {
+    public String purchases(
+            @RequestParam(required = false) String filterType,
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
 
         List<Purchase> purchases;
         BigDecimal totalAmount;
 
-        switch (filterType) {
-            case "date":
-                if (date != null && !date.isEmpty()) {
-                    LocalDateTime filterDate = LocalDateTime.parse(date + "T00:00:00");
-                    purchases = purchaseService.findByDate(filterDate);
-                    totalAmount = purchaseService.getTotalAmountByDate(filterDate);
-                } else {
-                    purchases = purchaseService.findAll();
+        if (filterType != null) {
+            switch (filterType) {
+                case "date":
+                    if (date != null && !date.isEmpty()) {
+                        LocalDateTime filterDate = LocalDateTime.parse(date + "T00:00:00");
+                        purchases = purchaseService.findByDate(filterDate);
+                        totalAmount = purchaseService.getTotalAmountByDate(filterDate);
+                        model.addAttribute("selectedDate", date);
+                    } else {
+                        purchases = purchaseService.findAllOrderByDateDesc();
+                        totalAmount = purchaseService.getTotalAmount();
+                    }
+                    break;
+                case "month":
+                    if (month != null && !month.isEmpty()) {
+                        String[] parts = month.split("-");
+                        int yearValue = Integer.parseInt(parts[0]);
+                        int monthValue = Integer.parseInt(parts[1]);
+                        purchases = purchaseService.findByMonth(monthValue, yearValue);
+                        totalAmount = purchaseService.getTotalAmountByMonth(monthValue, yearValue);
+                        model.addAttribute("selectedMonth", month);
+                    } else {
+                        purchases = purchaseService.findAllOrderByDateDesc();
+                        totalAmount = purchaseService.getTotalAmount();
+                    }
+                    break;
+                case "year":
+                    if (year != null) {
+                        purchases = purchaseService.findByYear(year);
+                        totalAmount = purchaseService.getTotalAmountByYear(year);
+                        model.addAttribute("selectedYear", year);
+                    } else {
+                        purchases = purchaseService.findAllOrderByDateDesc();
+                        totalAmount = purchaseService.getTotalAmount();
+                    }
+                    break;
+                default:
+                    purchases = purchaseService.findAllOrderByDateDesc();
                     totalAmount = purchaseService.getTotalAmount();
-                }
-                break;
-            case "month":
-                if (month != null && !month.isEmpty() && year != null) {
-                    // Parse month from format "YYYY-MM"
-                    int monthValue = Integer.parseInt(month.split("-")[1]);
-                    purchases = purchaseService.findByMonth(monthValue, year);
-                    totalAmount = purchaseService.getTotalAmountByMonth(monthValue, year);
-                } else {
-                    purchases = purchaseService.findAll();
-                    totalAmount = purchaseService.getTotalAmount();
-                }
-                break;
-            case "year":
-                if (year != null) {
-                    purchases = purchaseService.findByYear(year);
-                    totalAmount = purchaseService.getTotalAmountByYear(year);
-                } else {
-                    purchases = purchaseService.findAll();
-                    totalAmount = purchaseService.getTotalAmount();
-                }
-                break;
-            default:
-                purchases = purchaseService.findAll();
-                totalAmount = purchaseService.getTotalAmount();
-                break;
+                    break;
+            }
+        } else {
+            purchases = purchaseService.findAllOrderByDateDesc();
+            totalAmount = purchaseService.getTotalAmount();
+            filterType = "all";
         }
 
         model.addAttribute("purchases", purchases);
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("filterType", filterType);
-        model.addAttribute("selectedDate", date);
-        model.addAttribute("selectedMonth", month); // Now passing the original month string back
-        model.addAttribute("selectedYear", year);
 
         return "purchases";
     }

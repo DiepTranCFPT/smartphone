@@ -50,40 +50,40 @@ public class CustomerService {
 
     }
 
-    public Optional<Customer> findById(Long id) {
-        return customerRepository.findById(id);
-    }
-
-    public List<Customer> findAll() {
-        return customerRepository.findAll();
-    }
-
-    public List<Customer> findByCreatedDate(LocalDateTime date) {
-        return customerRepository.findByCreatedDate(date);
-    }
-
     public List<Customer> findByCreatedMonth(int month, int year) {
         return customerRepository.findByCreatedMonth(month, year);
-    }
-
-    public List<Customer> findByCreatedYear(int year) {
-        return customerRepository.findByCreatedYear(year);
-    }
-
-    public long countAll() {
-        return customerRepository.count();
-    }
-
-    public long countByCreatedDate(LocalDateTime date) {
-        return customerRepository.countByCreatedDate(date);
     }
 
     public long countByCreatedMonth(int month, int year) {
         return customerRepository.countByCreatedMonth(month, year);
     }
 
+    public List<Customer> findByCreatedDate(LocalDateTime date) {
+        return customerRepository.findByCreatedDate(date);
+    }
+
+    public long countByCreatedDate(LocalDateTime date) {
+        return customerRepository.countByCreatedDate(date);
+    }
+
+    public List<Customer> findByCreatedYear(int year) {
+        return customerRepository.findByCreatedYear(year);
+    }
+
     public long countByCreatedYear(int year) {
         return customerRepository.countByCreatedYear(year);
+    }
+
+    public List<Customer> findAll() {
+        return customerRepository.findAll();
+    }
+
+    public long countAll() {
+        return customerRepository.count();
+    }
+
+    public Optional<Customer> findById(Long id) {
+        return customerRepository.findById(id);
     }
 
     public void deleteById(Long id) {

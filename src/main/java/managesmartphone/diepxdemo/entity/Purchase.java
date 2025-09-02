@@ -31,8 +31,7 @@ public class Purchase {
     @Column(columnDefinition = "TEXT")
     private String note;
 
-    // Replace single-product fields with a list of PurchaseItem
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseItem> items = new ArrayList<>();
 
     @PrePersist

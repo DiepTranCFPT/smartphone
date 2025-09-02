@@ -19,67 +19,72 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping
-    public String customers(Model model) {
-        List<Customer> customers = customerService.findAll();
-        long totalCustomers = customerService.countAll();
-
-        model.addAttribute("customers", customers);
-        model.addAttribute("totalCustomers", totalCustomers);
-        model.addAttribute("filterType", "all");
-        return "customers";
-    }
-
-    @GetMapping("/filter")
-    public String filterCustomers(@RequestParam String filterType,
-                                @RequestParam(required = false) String date,
-                                @RequestParam(required = false) Integer month,
-                                @RequestParam(required = false) Integer year,
-                                Model model) {
+    public String customers(
+            @RequestParam(required = false) String filterType,
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
 
         List<Customer> customers;
         long totalCustomers;
 
-        switch (filterType) {
-            case "date":
-                if (date != null && !date.isEmpty()) {
-                    LocalDateTime filterDate = LocalDateTime.parse(date + "T00:00:00");
-                    customers = customerService.findByCreatedDate(filterDate);
-                    totalCustomers = customerService.countByCreatedDate(filterDate);
-                } else {
+        if (filterType != null) {
+            switch (filterType) {
+                case "date":
+                    if (date != null && !date.isEmpty()) {
+                        LocalDateTime filterDate = LocalDateTime.parse(date + "T00:00:00");
+                        customers = customerService.findByCreatedDate(filterDate);
+                        totalCustomers = customerService.countByCreatedDate(filterDate);
+                        model.addAttribute("selectedDate", date);
+                    } else {
+                        customers = customerService.findAll();
+                        totalCustomers = customerService.countAll();
+                    }
+                    break;
+                case "month":
+                    if (month != null && !month.isEmpty()) {
+                        try {
+                            String[] parts = month.split("-");
+                            int yearValue = Integer.parseInt(parts[0]);
+                            int monthValue = Integer.parseInt(parts[1]);
+                            customers = customerService.findByCreatedMonth(monthValue, yearValue);
+                            totalCustomers = customerService.countByCreatedMonth(monthValue, yearValue);
+
+                            model.addAttribute("selectedMonthStr", month);
+                        } catch (Exception e) {
+                            customers = customerService.findAll();
+                            totalCustomers = customerService.countAll();
+                        }
+                    } else {
+                        customers = customerService.findAll();
+                        totalCustomers = customerService.countAll();
+                    }
+                    break;
+                case "year":
+                    if (year != null) {
+                        customers = customerService.findByCreatedYear(year);
+                        totalCustomers = customerService.countByCreatedYear(year);
+                        model.addAttribute("selectedYear", year);
+                    } else {
+                        customers = customerService.findAll();
+                        totalCustomers = customerService.countAll();
+                    }
+                    break;
+                default:
                     customers = customerService.findAll();
                     totalCustomers = customerService.countAll();
-                }
-                break;
-            case "month":
-                if (month != null && year != null) {
-                    customers = customerService.findByCreatedMonth(month, year);
-                    totalCustomers = customerService.countByCreatedMonth(month, year);
-                } else {
-                    customers = customerService.findAll();
-                    totalCustomers = customerService.countAll();
-                }
-                break;
-            case "year":
-                if (year != null) {
-                    customers = customerService.findByCreatedYear(year);
-                    totalCustomers = customerService.countByCreatedYear(year);
-                } else {
-                    customers = customerService.findAll();
-                    totalCustomers = customerService.countAll();
-                }
-                break;
-            default:
-                customers = customerService.findAll();
-                totalCustomers = customerService.countAll();
-                break;
+                    break;
+            }
+        } else {
+            customers = customerService.findAll();
+            totalCustomers = customerService.countAll();
+            filterType = "all";
         }
 
         model.addAttribute("customers", customers);
         model.addAttribute("totalCustomers", totalCustomers);
         model.addAttribute("filterType", filterType);
-        model.addAttribute("selectedDate", date);
-        model.addAttribute("selectedMonth", month);
-        model.addAttribute("selectedYear", year);
 
         return "customers";
     }

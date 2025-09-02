@@ -24,12 +24,16 @@ public class PurchaseService {
         return purchaseRepository.findById(id);
     }
 
+    public List<Purchase> findAllOrderByDateDesc() {
+        return purchaseRepository.findAllOrderByDateDesc();
+    }
+
     public List<Purchase> findAll() {
         return purchaseRepository.findAll();
     }
 
-    public List<Purchase> findByCustomerId(Long customerId) {
-        return purchaseRepository.findByCustomerIdOrderByDateDesc(customerId);
+    public void deleteById(Long id) {
+        purchaseRepository.deleteById(id);
     }
 
     public List<Purchase> findByDate(LocalDateTime date) {
@@ -44,27 +48,23 @@ public class PurchaseService {
         return purchaseRepository.findByYear(year);
     }
 
-    public BigDecimal getTotalAmount() {
-        BigDecimal total = purchaseRepository.getTotalAmount();
-        return total != null ? total : BigDecimal.ZERO;
-    }
-
     public BigDecimal getTotalAmountByDate(LocalDateTime date) {
-        BigDecimal total = purchaseRepository.getTotalAmountByDate(date);
-        return total != null ? total : BigDecimal.ZERO;
+        return purchaseRepository.getTotalAmountByDate(date);
     }
 
     public BigDecimal getTotalAmountByMonth(int month, int year) {
-        BigDecimal total = purchaseRepository.getTotalAmountByMonth(month, year);
-        return total != null ? total : BigDecimal.ZERO;
+        return purchaseRepository.getTotalAmountByMonth(month, year);
     }
 
     public BigDecimal getTotalAmountByYear(int year) {
-        BigDecimal total = purchaseRepository.getTotalAmountByYear(year);
-        return total != null ? total : BigDecimal.ZERO;
+        return purchaseRepository.getTotalAmountByYear(year);
     }
 
-    public void deleteById(Long id) {
-        purchaseRepository.deleteById(id);
+    public BigDecimal getTotalAmount() {
+        return purchaseRepository.getTotalAmount();
+    }
+
+    public List<Purchase> findByCustomerId(Long customerId) {
+        return purchaseRepository.findByCustomerIdOrderByDateDesc(customerId);
     }
 }

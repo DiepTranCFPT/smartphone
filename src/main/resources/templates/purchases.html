@@ -181,23 +181,43 @@
         }
 
         .stats-card {
-            background: linear-gradient(135deg, #4285f4, #34a853);
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
             color: white;
-            padding: 25px;
+            padding: 35px;
             border-radius: 16px;
             display: inline-block;
-            min-width: 250px;
+            min-width: 300px;
+            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(13, 71, 161, 0.4);
         }
 
         .stats-number {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            color: #ffd700;
         }
 
         .stats-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 1;
+            font-weight: 500;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .money {
+            background: linear-gradient(135deg, #ffd700, #ffeb3b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
 
         .purchases-section {
@@ -322,7 +342,7 @@
       - The path starts from the 'static' directory.
       - The 'alt' attribute is important for accessibility.
     -->
-    <img th:src="@{/images/logo1.png}" alt="Application Logo" style="width: 150px; height: auto;"/>
+    <img th:src="@{images/logo1.png}" alt="Application Logo" style="width: 150px; height: auto;"/>
 </header>
     <div class="container">
         <!-- Header -->
@@ -355,7 +375,7 @@
                 <i class="material-icons">filter_list</i>
                 Lọc Theo Thời Gian
             </h2>
-            <form th:action="@{/purchases/filter}" method="get" class="filter-form">
+            <form th:action="@{/purchases}" method="get" class="filter-form">
                 <div class="form-group">
                     <label for="filterType" class="form-label">Loại lọc</label>
                     <select id="filterType" name="filterType" class="form-select" onchange="toggleDateInputs(this.value)" th:value="${filterType}">
@@ -398,7 +418,7 @@
         <!-- Stats Section -->
         <div class="stats-section">
             <div class="stats-card">
-                <div class="stats-number money" th:text="${#numbers.formatDecimal(totalAmount, 0, 0)} + ' VNĐ'">0 VNĐ</div>
+                <div class="stats-number money" th:text="${#numbers.formatDecimal(totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">0 VNĐ</div>
                 <div class="stats-label">Tổng Doanh Thu</div>
             </div>
         </div>
@@ -455,10 +475,10 @@
                             <td class="money">
                                 <span th:each="item, iterStat : ${purchase.items}"
                                       th:if="${iterStat.index == 0}"
-                                      th:text="${#numbers.formatDecimal(item.unitPrice, 0, 0)} + ' VNĐ'">0 VNĐ</span>
+                                      th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">0 VNĐ</span>
                                 <span th:if="${purchase.items == null or purchase.items.size() == 0}" style="color:#999;">0 VNĐ</span>
                             </td>
-                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 0)} + ' VNĐ'"></td>
+                            <td class="money" th:text="${#numbers.formatDecimal(purchase.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
                             <td>
                                 <span th:each="item, iterStat : ${purchase.items}"
                                       th:if="${iterStat.index == 0} and ${item.warrantyMonths != null}"

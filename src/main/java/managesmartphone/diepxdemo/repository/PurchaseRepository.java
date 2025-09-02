@@ -13,26 +13,33 @@ import java.util.List;
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
-    List<Purchase> findByCustomerIdOrderByDateDesc(Long customerId);
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items WHERE p.customer.id = :customerId ORDER BY p.date DESC")
+    List<Purchase> findByCustomerIdOrderByDateDesc(@Param("customerId") Long customerId);
 
-    @Query("SELECT p FROM Purchase p WHERE DATE(p.date) = DATE(:date) ORDER BY p.date DESC")
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items WHERE DATE(p.date) = DATE(:date) ORDER BY p.date DESC")
     List<Purchase> findByDate(@Param("date") LocalDateTime date);
 
-    @Query("SELECT p FROM Purchase p WHERE MONTH(p.date) = :month AND YEAR(p.date) = :year ORDER BY p.date DESC")
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items WHERE EXTRACT(MONTH FROM p.date) = :month AND EXTRACT(YEAR FROM p.date) = :year ORDER BY p.date DESC")
     List<Purchase> findByMonth(@Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT p FROM Purchase p WHERE YEAR(p.date) = :year ORDER BY p.date DESC")
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items WHERE EXTRACT(YEAR FROM p.date) = :year ORDER BY p.date DESC")
     List<Purchase> findByYear(@Param("year") int year);
 
     @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE DATE(p.date) = DATE(:date)")
     BigDecimal getTotalAmountByDate(@Param("date") LocalDateTime date);
 
-    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE MONTH(p.date) = :month AND YEAR(p.date) = :year")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE EXTRACT(MONTH FROM p.date) = :month AND EXTRACT(YEAR FROM p.date) = :year")
     BigDecimal getTotalAmountByMonth(@Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE YEAR(p.date) = :year")
+    @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi WHERE EXTRACT(YEAR FROM p.date) = :year")
     BigDecimal getTotalAmountByYear(@Param("year") int year);
 
     @Query("SELECT SUM(pi.unitPrice * pi.qty) FROM Purchase p JOIN p.items pi")
     BigDecimal getTotalAmount();
+
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items WHERE p.id = :id")
+    Purchase findByIdWithItems(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT p FROM Purchase p LEFT JOIN FETCH p.items ORDER BY p.date DESC")
+    List<Purchase> findAllOrderByDateDesc();
 }

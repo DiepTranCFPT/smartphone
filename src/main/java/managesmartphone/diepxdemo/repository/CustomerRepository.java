@@ -11,27 +11,25 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    
-    Optional<Customer> findByPhone(String phone);
+public interface CustomerRepository extends JpaRepository<Customer, Long> { Optional<Customer> findByPhone(String phone);
     
     List<Customer> findByPhoneContaining(String phone);
 
-    @Query("SELECT c FROM Customer c WHERE DATE(c.createdDate) = DATE(:date)")
+    @Query("SELECT c FROM Customer c WHERE FUNCTION('DATE', c.createdDate) = FUNCTION('DATE', :date)")
     List<Customer> findByCreatedDate(@Param("date") LocalDateTime date);
-    
-    @Query("SELECT c FROM Customer c WHERE MONTH(c.createdDate) = :month AND YEAR(c.createdDate) = :year")
-    List<Customer> findByCreatedMonth(@Param("month") int month, @Param("year") int year);
-    
-    @Query("SELECT c FROM Customer c WHERE YEAR(c.createdDate) = :year")
-    List<Customer> findByCreatedYear(@Param("year") int year);
-    
-    @Query("SELECT COUNT(c) FROM Customer c WHERE DATE(c.createdDate) = DATE(:date)")
+
+    @Query("SELECT COUNT(c) FROM Customer c WHERE FUNCTION('DATE', c.createdDate) = FUNCTION('DATE', :date)")
     long countByCreatedDate(@Param("date") LocalDateTime date);
 
-    @Query("SELECT COUNT(c) FROM Customer c WHERE MONTH(c.createdDate) = :month AND YEAR(c.createdDate) = :year")
+    @Query("SELECT c FROM Customer c WHERE EXTRACT(MONTH FROM c.createdDate) = :month AND EXTRACT(YEAR FROM c.createdDate) = :year")
+    List<Customer> findByCreatedMonth(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT COUNT(c) FROM Customer c WHERE EXTRACT(MONTH FROM c.createdDate) = :month AND EXTRACT(YEAR FROM c.createdDate) = :year")
     long countByCreatedMonth(@Param("month") int month, @Param("year") int year);
 
-    @Query("SELECT COUNT(c) FROM Customer c WHERE YEAR(c.createdDate) = :year")
+    @Query("SELECT c FROM Customer c WHERE EXTRACT(YEAR FROM c.createdDate) = :year")
+    List<Customer> findByCreatedYear(@Param("year") int year);
+
+    @Query("SELECT COUNT(c) FROM Customer c WHERE EXTRACT(YEAR FROM c.createdDate) = :year")
     long countByCreatedYear(@Param("year") int year);
 }

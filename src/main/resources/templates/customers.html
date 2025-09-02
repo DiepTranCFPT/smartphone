@@ -321,7 +321,7 @@
                 <i class="material-icons">filter_list</i>
                 Lọc Theo Thời Gian
             </h2>
-            <form th:action="@{/customers/filter}" method="get" class="filter-form">
+            <form th:action="@{/customers}" method="get" class="filter-form">
                 <div class="form-group">
                     <label class="form-label">Loại lọc</label>
                     <select name="filterType" class="form-select" onchange="toggleDateInputs(this.value)" th:value="${filterType}">
@@ -339,7 +339,7 @@
 
                 <div class="form-group" id="monthGroup" style="display: none;">
                     <label class="form-label">Chọn tháng</label>
-                    <input type="month" name="month" class="form-input" th:value="${selectedMonth != null ? selectedYear + '-' + (selectedMonth < 10 ? '0' + selectedMonth : selectedMonth) : ''}">
+                    <input type="month" name="month" class="form-input" th:value="${selectedMonthStr}">
                 </div>
 
                 <div class="form-group" id="yearGroup" style="display: none;">
@@ -436,12 +436,36 @@
                     yearGroup.style.display = 'block';
                     break;
             }
+
+            // Only clear and submit if it's a change event (not initial page load)
+            if (event && event.type === 'change') {
+                // Clear input values
+                document.querySelector('input[name="date"]').value = '';
+                document.querySelector('input[name="month"]').value = '';
+                document.querySelector('input[name="year"]').value = '';
+
+                // Clear the params and redirect to base URL
+                window.location.href = '/customers?filterType=' + filterType;
+            }
         }
 
         // Initialize on page load
         window.onload = function() {
             const filterType = document.querySelector('select[name="filterType"]').value;
             toggleDateInputs(filterType);
+
+            // Add event listeners for date, month and year inputs
+            document.querySelector('input[name="date"]').addEventListener('change', function() {
+                if(this.value) document.querySelector('.filter-form').submit();
+            });
+
+            document.querySelector('input[name="month"]').addEventListener('change', function() {
+                if(this.value) document.querySelector('.filter-form').submit();
+            });
+
+            document.querySelector('input[name="year"]').addEventListener('change', function() {
+                if(this.value) document.querySelector('.filter-form').submit();
+            });
         };
     </script>
 </body>

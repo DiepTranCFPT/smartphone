@@ -50,8 +50,8 @@ public class CustomerController {
                             int monthValue = Integer.parseInt(parts[1]);
                             customers = customerService.findByCreatedMonth(monthValue, yearValue);
                             totalCustomers = customerService.countByCreatedMonth(monthValue, yearValue);
-
-                            model.addAttribute("selectedMonthStr", month);
+                            model.addAttribute("selectedYear", yearValue);
+                            model.addAttribute("selectedMonth", monthValue);
                         } catch (Exception e) {
                             customers = customerService.findAll();
                             totalCustomers = customerService.countAll();
@@ -65,7 +65,6 @@ public class CustomerController {
                     if (year != null) {
                         customers = customerService.findByCreatedYear(year);
                         totalCustomers = customerService.countByCreatedYear(year);
-                        model.addAttribute("selectedYear", year);
                     } else {
                         customers = customerService.findAll();
                         totalCustomers = customerService.countAll();
@@ -85,6 +84,9 @@ public class CustomerController {
         model.addAttribute("customers", customers);
         model.addAttribute("totalCustomers", totalCustomers);
         model.addAttribute("filterType", filterType);
+        model.addAttribute("selectedDate", date);
+        model.addAttribute("selectedMonth", month);
+        model.addAttribute("selectedYear", year);
 
         return "customers";
     }

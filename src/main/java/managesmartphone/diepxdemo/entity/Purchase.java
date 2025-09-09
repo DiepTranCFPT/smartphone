@@ -37,7 +37,7 @@ public class Purchase {
     @PrePersist
     protected void onCreate() {
         if (date == null) {
-            date = LocalDateTime.now();
+            date = LocalDateTime.now().plusHours(6);
         }
     }
 

@@ -172,7 +172,7 @@ public class PurchaseController {
         purchase.setCustomer(customerOpt.get());
         purchase.setItems(new ArrayList<>());
         purchase.getItems().add(new PurchaseItem()); // Add initial empty item
-        purchase.setDate(LocalDateTime.now());
+        purchase.setDate(LocalDateTime.now().plusHours(6));
 
         model.addAttribute("purchase", purchase);
         model.addAttribute("customer", customerOpt.get());
@@ -200,7 +200,7 @@ public class PurchaseController {
     public String savePurchase(@ModelAttribute Purchase purchase, RedirectAttributes redirectAttributes) {
         try {
             if (purchase.getId() == null) {
-                purchase.setDate(LocalDateTime.now());
+                purchase.setDate(LocalDateTime.now().plusHours(6));
             }
 
             // Remove empty items and set back-reference
@@ -251,7 +251,7 @@ public class PurchaseController {
             Purchase purchase = purchaseOpt.get();
             model.addAttribute("purchase", purchase);
             model.addAttribute("customer", purchase.getCustomer());
-            model.addAttribute("currentDate", LocalDateTime.now());
+            model.addAttribute("currentDate", LocalDateTime.now().plusHours(6));
             return "invoice";
         }
         return "redirect:/purchases";
@@ -269,7 +269,7 @@ public class PurchaseController {
 
         if (!purchases.isEmpty()) {
             model.addAttribute("purchases", purchases);
-            model.addAttribute("currentDate", LocalDateTime.now());
+            model.addAttribute("currentDate", LocalDateTime.now().plusHours(6));
             model.addAttribute("isMultiple", true);
             return "invoice";
         }

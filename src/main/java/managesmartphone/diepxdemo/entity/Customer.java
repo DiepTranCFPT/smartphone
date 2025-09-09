@@ -43,7 +43,7 @@ public class Customer {
 
     @PrePersist
     protected void onCreate() {
-        createdDate = LocalDateTime.now();
+        createdDate = LocalDateTime.now().plusHours(6);
     }
 
     // Helper method to get order count

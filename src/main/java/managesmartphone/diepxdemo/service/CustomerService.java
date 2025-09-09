@@ -27,7 +27,7 @@ public class CustomerService {
     public Customer save(Customer customer) {
         if(customer.getId() == null){
             Customer newCustomer = Customer.builder()
-                    .createdDate(LocalDateTime.now())
+                    .createdDate(LocalDateTime.now().plusHours(6))
                     .name(customer.getName())
                     .phone(customer.getPhone())
                     .dob(customer.getDob())
@@ -41,7 +41,7 @@ public class CustomerService {
         if (!Objects.equals(customer1.getDob(), customer.getDob())){
             customer1.setDob(customer.getDob());
         }
-        customer1.setCreatedDate(LocalDateTime.now());
+        customer1.setCreatedDate(LocalDateTime.now().plusHours(6));
         if (!Objects.equals(customer1.getPhone(), customer.getPhone())){
             customer1.setPhone(customer.getPhone());
         }
@@ -50,40 +50,40 @@ public class CustomerService {
 
     }
 
-    public List<Customer> findByCreatedMonth(int month, int year) {
-        return customerRepository.findByCreatedMonth(month, year);
-    }
-
-    public long countByCreatedMonth(int month, int year) {
-        return customerRepository.countByCreatedMonth(month, year);
-    }
-
-    public List<Customer> findByCreatedDate(LocalDateTime date) {
-        return customerRepository.findByCreatedDate(date);
-    }
-
-    public long countByCreatedDate(LocalDateTime date) {
-        return customerRepository.countByCreatedDate(date);
-    }
-
-    public List<Customer> findByCreatedYear(int year) {
-        return customerRepository.findByCreatedYear(year);
-    }
-
-    public long countByCreatedYear(int year) {
-        return customerRepository.countByCreatedYear(year);
+    public Optional<Customer> findById(Long id) {
+        return customerRepository.findById(id);
     }
 
     public List<Customer> findAll() {
         return customerRepository.findAll();
     }
 
+    public List<Customer> findByCreatedDate(LocalDateTime date) {
+        return customerRepository.findByCreatedDate(date);
+    }
+
+    public List<Customer> findByCreatedMonth(int month, int year) {
+        return customerRepository.findByCreatedMonth(month, year);
+    }
+
+    public List<Customer> findByCreatedYear(int year) {
+        return customerRepository.findByCreatedYear(year);
+    }
+
     public long countAll() {
         return customerRepository.count();
     }
 
-    public Optional<Customer> findById(Long id) {
-        return customerRepository.findById(id);
+    public long countByCreatedDate(LocalDateTime date) {
+        return customerRepository.countByCreatedDate(date);
+    }
+
+    public long countByCreatedMonth(int month, int year) {
+        return customerRepository.countByCreatedMonth(month, year);
+    }
+
+    public long countByCreatedYear(int year) {
+        return customerRepository.countByCreatedYear(year);
     }
 
     public void deleteById(Long id) {

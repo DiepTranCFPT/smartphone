@@ -27,7 +27,7 @@ public class CustomerService {
     public Customer save(Customer customer) {
         if(customer.getId() == null){
             Customer newCustomer = Customer.builder()
-                    .createdDate(LocalDateTime.now().plusHours(6))
+                    .createdDate(LocalDateTime.now().plusHours(7))
                     .name(customer.getName())
                     .phone(customer.getPhone())
                     .dob(customer.getDob())
@@ -41,7 +41,7 @@ public class CustomerService {
         if (!Objects.equals(customer1.getDob(), customer.getDob())){
             customer1.setDob(customer.getDob());
         }
-        customer1.setCreatedDate(LocalDateTime.now().plusHours(6));
+        customer1.setCreatedDate(LocalDateTime.now().plusHours(7));
         if (!Objects.equals(customer1.getPhone(), customer.getPhone())){
             customer1.setPhone(customer.getPhone());
         }

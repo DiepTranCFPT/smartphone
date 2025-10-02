@@ -6,34 +6,15 @@
       "src": "build.sh",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "target"
+        "zeroConfig": true,
+        "distDir": ".vercel/output/static"
       }
     }
   ],
   "routes": [
     {
-      "src": "/actuator/health",
-      "dest": "/actuator/health"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/customers/(.*)",
-      "dest": "/customers/$1"
-    },
-    {
-      "src": "/purchases/(.*)",
-      "dest": "/purchases/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/diepxdemo-0.0.1-SNAPSHOT.jar"
     }
-  ],
-  "env": {
-    "SPRING_PROFILES_ACTIVE": "production",
-    "PORT": "8081"
-  }
+  ]
 }

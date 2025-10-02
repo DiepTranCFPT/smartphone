@@ -3,7 +3,7 @@
   "name": "diepxdemo",
   "builds": [
     {
-      "src": "Dockerfile",
+      "src": "build.sh",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "target"
@@ -37,4 +37,3 @@
     "PORT": "8081"
   }
 }
-
